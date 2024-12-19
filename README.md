@@ -1,6 +1,8 @@
-# Furnify : Furniture E-Commerce Mobile Application
+# 🪑 Furnify : Furniture E-Commerce Mobile Application
 
 Furnify offers a seamless shopping experience for purchasing furniture from local markets. With features like augmented reality visualization, interactive maps, user reviews, secure payments, and real-time order tracking, this app bridges the gap between buyers and local furniture vendors.
+
+![Explore Screen](assets/images/explore_screen.png)
 
 ## Key Features
 
