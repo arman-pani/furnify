@@ -24,6 +24,7 @@ class _OrderReceiptPageState extends State<OrderReceiptPage> {
     double grandTotal = calculateGrandTotal(widget.order.billingDetails);
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: customAppBar(
         title: 'Order Receipt',
         context: context,

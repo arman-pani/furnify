@@ -1,6 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:furnify/app_router.dart';
 import 'package:furnify/constants/textstyle_constants.dart';
+import 'package:furnify/services/firebase_auth_methods.dart';
 import 'package:furnify/widgets/custom_button.dart';
 import 'package:furnify/widgets/custom_textfield.dart';
 import 'package:furnify/widgets/other_platform_button.dart';
@@ -19,14 +23,32 @@ class _SignupPageState extends State<SignupPage> {
   final TextEditingController pwdController = TextEditingController();
   final TextEditingController confirmPwdController = TextEditingController();
 
-  final TapGestureRecognizer loginOnTap = TapGestureRecognizer()
-    ..onTap = () {
-      print('Tapped on clickable text!');
-      // Perform your action here
-    };
+  void signUpUserWithEmail() async {
+    FirebaseAuthMethods(
+      FirebaseAuth.instance,
+      FirebaseFirestore.instance,
+    ).signUpWithEmail(
+      email: emailController.text.trim(),
+      password: pwdController.text.trim(),
+      context: context,
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    emailController.dispose();
+    pwdController.dispose();
+    confirmPwdController.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final TapGestureRecognizer loginOnTap = TapGestureRecognizer()
+      ..onTap = () => Navigator.of(context).push(AppRouter.logInPage());
+
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 90),
         child: Column(
@@ -56,7 +78,11 @@ class _SignupPageState extends State<SignupPage> {
               hintText: "Confirm Password",
             ),
             const SizedBox(height: 30),
-            CustomButton(isBlack: true, label: "Sign up", onPressed: () {}),
+            CustomButton(
+              isBlack: true,
+              label: "Sign up",
+              onPressed: signUpUserWithEmail,
+            ),
             const SizedBox(height: 30),
             Text(
               "or continue with",
@@ -68,7 +94,12 @@ class _SignupPageState extends State<SignupPage> {
               children: [
                 OtherPlatformButton(
                   logoPath: 'assets/google.svg',
-                  onTap: () {},
+                  onTap: () {
+                    FirebaseAuthMethods(
+                      FirebaseAuth.instance,
+                      FirebaseFirestore.instance,
+                    ).signInWithGoogle(context);
+                  },
                 ),
                 OtherPlatformButton(
                   logoPath: 'assets/facebook.svg',

@@ -1,6 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:furnify/app_router.dart';
 import 'package:furnify/constants/textstyle_constants.dart';
+import 'package:furnify/services/firebase_auth_methods.dart';
 import 'package:furnify/widgets/custom_button.dart';
 import 'package:furnify/widgets/custom_textfield.dart';
 import 'package:furnify/widgets/other_platform_button.dart';
@@ -18,21 +22,34 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController pwdController = TextEditingController();
 
-  final TapGestureRecognizer signUpOnTap = TapGestureRecognizer()
-    ..onTap = () {
-      print('Tapped on clickable text!');
-      // Perform your action here
-    };
+  void loginUserWithEmail() async {
+    FirebaseAuthMethods(
+      FirebaseAuth.instance,
+      FirebaseFirestore.instance,
+    ).loginWithEmail(
+      email: emailController.text.trim(),
+      password: pwdController.text.trim(),
+      context: context,
+    );
+  }
 
   @override
   void dispose() {
     super.dispose();
     emailController.dispose();
+    pwdController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final TapGestureRecognizer signUpOnTap = TapGestureRecognizer()
+      ..onTap = () => Navigator.of(context).push(AppRouter.signUpPage());
+
+    final TapGestureRecognizer forgetPwdOnTap = TapGestureRecognizer()
+      ..onTap =
+          () => Navigator.of(context).push(AppRouter.forgetPasswordPage());
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 90),
         child: Column(
@@ -64,7 +81,7 @@ class _LoginPageState extends State<LoginPage> {
                   text: TextSpan(
                     text: 'Forget Password?',
                     style: TextStyleConstants.smallText,
-                    recognizer: signUpOnTap,
+                    recognizer: forgetPwdOnTap,
                   ),
                 )
               ],
@@ -73,7 +90,7 @@ class _LoginPageState extends State<LoginPage> {
             CustomButton(
               isBlack: true,
               label: "Login",
-              onPressed: () {},
+              onPressed: loginUserWithEmail,
             ),
             const SizedBox(height: 30),
             Text(

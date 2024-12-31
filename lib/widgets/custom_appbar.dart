@@ -18,6 +18,7 @@ PreferredSizeWidget customAppBar({
       ),
     ),
     surfaceTintColor: Colors.white,
+    backgroundColor: Colors.white,
     titleSpacing: 0,
     title: Text(
       title,
@@ -43,6 +44,7 @@ PreferredSizeWidget homeAppBar(
     leading: leading,
     bottom: bottom,
     leadingWidth: double.infinity,
+    backgroundColor: Colors.white,
     surfaceTintColor: Colors.white,
     actions: [
       GestureDetector(

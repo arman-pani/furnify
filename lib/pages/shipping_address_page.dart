@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:furnify/constants/textstyle_constants.dart';
 import 'package:furnify/models/address_model.dart';
 import 'package:furnify/riverpod/address_notifier.dart';
 import 'package:furnify/widgets/add_address_dialog.dart';
@@ -22,6 +23,7 @@ class _ShippingAddressPageState extends ConsumerState<ShippingAddressPage> {
     final List<AddressModel> addressList = ref.watch(addressProvider);
 
     return Scaffold(
+      backgroundColor: Colors.white,
       resizeToAvoidBottomInset: false,
       appBar: customAppBar(
         title: 'Shipping Address',
@@ -49,7 +51,21 @@ class _ShippingAddressPageState extends ConsumerState<ShippingAddressPage> {
                     separatorBuilder: (context, index) =>
                         const SizedBox(height: 15),
                   )
-                : Container(),
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Symbols.location_off_rounded,
+                        size: 150,
+                        weight: 500,
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'No addresses found',
+                        style: TextStyleConstants.titleMedium,
+                      ),
+                    ],
+                  ),
             const SizedBox(height: 25),
             CustomButton(
               icon: Symbols.add_location_rounded,

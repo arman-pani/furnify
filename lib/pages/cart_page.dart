@@ -6,6 +6,7 @@ import 'package:furnify/models/cart_item_model.dart';
 import 'package:furnify/riverpod/cart_notifier.dart';
 import 'package:furnify/widgets/custom_appbar.dart';
 import 'package:furnify/widgets/custom_bottom_sheet.dart';
+import 'package:furnify/widgets/placeholder_widget.dart';
 import 'package:furnify/widgets/product_cart_card.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
@@ -64,21 +65,9 @@ class _CartPageState extends ConsumerState<CartPage>
         padding:
             const EdgeInsets.only(right: 15, left: 15, bottom: 90, top: 15),
         child: cartItems.isEmpty
-            ? Center(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 100),
-                    const Icon(
-                      Symbols.shopping_cart_off_rounded,
-                      size: 150,
-                      weight: 500,
-                    ),
-                    Text(
-                      "Your cart is empty!",
-                      style: TextStyleConstants.titleMedium,
-                    ),
-                  ],
-                ),
+            ? const PlaceholderWidget(
+                icon: Symbols.shopping_cart_off_rounded,
+                title: "Your cart is empty!",
               )
             : Column(
                 children: [

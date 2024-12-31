@@ -15,6 +15,7 @@ class WishListPage extends ConsumerWidget {
     final wishlist = ref.watch(wishlistProvider);
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: customAppBar(
         title: 'Wishlist',
         context: context,

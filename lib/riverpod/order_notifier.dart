@@ -1,26 +1,21 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:furnify/sqlflite/local_database_helper.dart';
+// class OrdersNotifier extends StateNotifier<List<OrderModel>> {
+//   final LocalDatabaseHelper db;
 
-import '../models/order_model.dart';
+//   OrdersNotifier(this.db) : super([]) {
+//     _loadOrders();
+//   }
 
-class OrdersNotifier extends StateNotifier<List<OrderModel>> {
-  final LocalDatabaseHelper db;
+//   Future<void> _loadOrders() async {
+//     final orders = await db.getOrdersFromLocalDB();
+//     state = orders;
+//   }
 
-  OrdersNotifier(this.db) : super([]) {
-    _loadOrders();
-  }
+//   Future<void> addOrder(OrderModel order) async {
+//     await db.addToOrders(order: order);
+//     state = [...state, order];
+//   }
+// }
 
-  Future<void> _loadOrders() async {
-    final orders = await db.getOrdersFromLocalDB();
-    state = orders;
-  }
-
-  Future<void> addOrder(OrderModel order) async {
-    await db.addToOrders(order: order);
-    state = [...state, order];
-  }
-}
-
-final ordersProvider = StateNotifierProvider<OrdersNotifier, List<OrderModel>>(
-  (ref) => OrdersNotifier(LocalDatabaseHelper()),
-);
+// final ordersProvider = StateNotifierProvider<OrdersNotifier, List<OrderModel>>(
+//   (ref) => OrdersNotifier(LocalDatabaseHelper()),
+// );

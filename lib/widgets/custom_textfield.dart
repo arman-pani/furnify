@@ -4,14 +4,18 @@ import 'package:furnify/constants/textstyle_constants.dart';
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
+  final bool onlyDigits;
+  final int? maxInputLimit;
   final String hintText;
   final IconData? prefixIcon;
   const CustomTextField({
     super.key,
+    bool? onlyDigits,
     required this.controller,
     required this.hintText,
     this.prefixIcon,
-  });
+    this.maxInputLimit,
+  }) : onlyDigits = onlyDigits ?? false;
 
   @override
   Widget build(BuildContext context) {
@@ -23,8 +27,12 @@ class CustomTextField extends StatelessWidget {
       ),
     );
     return TextField(
+      textCapitalization: TextCapitalization.words,
       inputFormatters: [
-        LengthLimitingTextInputFormatter(20),
+        LengthLimitingTextInputFormatter(maxInputLimit ?? 40),
+        onlyDigits
+            ? FilteringTextInputFormatter.digitsOnly
+            : FilteringTextInputFormatter.singleLineFormatter
       ],
       cursorColor: Colors.black,
       cursorErrorColor: Colors.black,

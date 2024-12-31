@@ -37,6 +37,17 @@ class AddressModel {
     };
   }
 
+  Map<String, dynamic> toMapForOrdersCollection() {
+    return {
+      'address1': address1,
+      'address2': address2 ?? "",
+      'pincode': pincode,
+      'country': country,
+      'state': state,
+      'district': district,
+    };
+  }
+
   factory AddressModel.fromMap(Map<String, dynamic> map) {
     return AddressModel(
       id: map['id'] as String,

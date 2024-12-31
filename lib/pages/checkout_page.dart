@@ -3,11 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:furnify/app_router.dart';
 import 'package:furnify/constants/textstyle_constants.dart';
 import 'package:furnify/helper_methoda.dart';
+import 'package:furnify/models/address_model.dart';
 import 'package:furnify/models/billing_model.dart';
 import 'package:furnify/models/cart_item_model.dart';
 import 'package:furnify/models/order_model.dart';
 import 'package:furnify/riverpod/address_notifier.dart';
-import 'package:furnify/riverpod/order_notifier.dart';
+import 'package:furnify/riverpod/riverpod_provider.dart';
+import 'package:furnify/services/common_methods.dart';
 import 'package:furnify/widgets/address_card.dart';
 import 'package:furnify/widgets/billing_summary.dart';
 import 'package:furnify/widgets/custom_appbar.dart';
@@ -25,6 +27,8 @@ class CheckoutPage extends ConsumerStatefulWidget {
 }
 
 class _CheckoutPageState extends ConsumerState<CheckoutPage> {
+  Future<void>? _pendingAddOrder;
+
   @override
   Widget build(BuildContext context) {
     final double maxWidth = MediaQuery.of(context).size.width;
@@ -42,28 +46,41 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
 
     double grandTotal = calculateGrandTotal(dummyBilling);
 
-    final defaultAddressAsyncValue = ref.watch(defaultAddressProvider);
+    final List<AddressModel> addressList = ref.watch(addressProvider);
 
-    void onTapPaymentButton() {
-      final orders = ref.read(ordersProvider.notifier);
-      defaultAddressAsyncValue.whenData((defaultAddress) {
-        if (defaultAddress != null) {
-          final order = OrderModel(
-            totalPrize: grandTotal,
-            billingDetails: dummyBilling,
-            itemList: widget.cartItems,
-            isDelivered: false,
-            deliveryDate: DateTime(2025, 1, 12),
-            orderDateTime: DateTime.now(),
-            shippingAddress: defaultAddress,
-          );
-          orders.addOrder(order);
-          Navigator.of(context).push(AppRouter.orderConfirmedPage());
-        }
+    final AddressModel? defaultAddress;
+    if (addressList.isEmpty) {
+      defaultAddress = null;
+    } else {
+      defaultAddress = addressList.firstWhere((address) => address.isDefault);
+    }
+
+    void onTapPaymentButton() async {
+      final ordersNotifier = ref.read(orderNotifierProvider.notifier);
+      final user = await getUserFromPrefs();
+
+      final order = OrderModel(
+        id: '',
+        totalPrize: grandTotal,
+        billingDetails: dummyBilling,
+        itemList: widget.cartItems,
+        isDelivered: false,
+        deliveryDate: DateTime(2025, 1, 12),
+        orderDateTime: DateTime.now(),
+        shippingAddress: defaultAddress!,
+      );
+
+      final future = ordersNotifier.addOrder(order, user);
+
+      setState(() {
+        _pendingAddOrder = future;
       });
+
+      Navigator.of(context).push(AppRouter.orderConfirmedPage());
     }
 
     return Scaffold(
+      backgroundColor: Colors.white,
       bottomSheet: CustomBottomSheet(
         maxWidth: maxWidth,
         totalCost: grandTotal,
@@ -102,25 +119,17 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                   ],
                 ),
                 const SizedBox(height: 15),
-                defaultAddressAsyncValue.when(
-                  data: (address) {
-                    if (address == null) {
-                      return CustomButton(
+                defaultAddress != null
+                    ? AddressCard(
+                        addressModel: defaultAddress,
+                        isEditable: false,
+                      )
+                    : CustomButton(
                         label: 'Add shipping address',
                         onPressed: () => Navigator.of(context)
                             .push(AppRouter.shippingAddressPage()),
                         isBlack: true,
-                      );
-                    } else {
-                      return AddressCard(
-                        addressModel: address,
-                        isEditable: false,
-                      );
-                    }
-                  },
-                  loading: () => const CircularProgressIndicator(),
-                  error: (error, stackTrace) => Text('Error: $error'),
-                ),
+                      )
               ],
             ),
             const SizedBox(height: 30),

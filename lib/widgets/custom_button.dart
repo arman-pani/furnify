@@ -29,6 +29,7 @@ class CustomButton extends StatelessWidget {
           : Icon(
               icon,
               size: 25,
+              color: isBlack ? Colors.white : Colors.black,
               weight: 600,
             ),
       style: ElevatedButton.styleFrom(

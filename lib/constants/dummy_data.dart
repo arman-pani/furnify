@@ -1,6 +1,3 @@
-import 'package:furnify/models/cart_item_model.dart';
-import 'package:furnify/models/product_model.dart';
-
 String dummyImageUrl = "https://placeholder.pics/svg/300";
 
 // List<AddressModel> dummyAddresses = [
@@ -42,80 +39,80 @@ String dummyImageUrl = "https://placeholder.pics/svg/300";
 //   ),
 // ];
 
-List<ProductModel> dummyTrendingProducts = [
-  ProductModel(
-    id: "adasoidai1",
-    name: "Green Chair",
-    company: "XYZ Company",
-    category: 'Chair',
-    description: "Comfortable chair with modern design.",
-    prize: 100,
-    rating: 4.5,
-    imageUrlList: [dummyImageUrl, dummyImageUrl],
-  ),
-  ProductModel(
-    id: "adasoidai2",
-    name: "Red Sofa",
-    company: "ABC Furniture",
-    category: 'Table',
-    description: "Spacious and luxurious red sofa.",
-    prize: 300,
-    rating: 4.8,
-    imageUrlList: [dummyImageUrl, dummyImageUrl],
-  ),
-  ProductModel(
-    id: "adasoidai3",
-    name: "Wooden Desk",
-    company: "Furniture Co.",
-    category: 'Desk',
-    description: "Elegant and sturdy wooden desk for your office.",
-    prize: 150,
-    rating: 4.2,
-    imageUrlList: [dummyImageUrl, dummyImageUrl],
-  ),
-  ProductModel(
-    id: "adasoidai4",
-    name: "Office Chair",
-    company: "WorkSpace",
-    category: 'Chair',
-    description: "Ergonomically designed office chair for comfort.",
-    prize: 120,
-    rating: 4.6,
-    imageUrlList: [dummyImageUrl, dummyImageUrl],
-  ),
-  ProductModel(
-    id: "adasoidai5",
-    name: "Coffee Table",
-    company: "Living Home",
-    category: 'Table',
-    description: "Stylish coffee table for your living room.",
-    prize: 80,
-    rating: 4.3,
-    imageUrlList: [dummyImageUrl, dummyImageUrl],
-  ),
-];
+// List<ProductModel> dummyTrendingProducts = [
+//   ProductModel(
+//     id: "adasoidai1",
+//     name: "Green Chair",
+//     company: "XYZ Company",
+//     category: 'Chair',
+//     description: "Comfortable chair with modern design.",
+//     prize: 100,
+//     rating: 4.5,
+//     imageUrlList: [dummyImageUrl, dummyImageUrl],
+//   ),
+//   ProductModel(
+//     id: "adasoidai2",
+//     name: "Red Sofa",
+//     company: "ABC Furniture",
+//     category: 'Table',
+//     description: "Spacious and luxurious red sofa.",
+//     prize: 300,
+//     rating: 4.8,
+//     imageUrlList: [dummyImageUrl, dummyImageUrl],
+//   ),
+//   ProductModel(
+//     id: "adasoidai3",
+//     name: "Wooden Desk",
+//     company: "Furniture Co.",
+//     category: 'Desk',
+//     description: "Elegant and sturdy wooden desk for your office.",
+//     prize: 150,
+//     rating: 4.2,
+//     imageUrlList: [dummyImageUrl, dummyImageUrl],
+//   ),
+//   ProductModel(
+//     id: "adasoidai4",
+//     name: "Office Chair",
+//     company: "WorkSpace",
+//     category: 'Chair',
+//     description: "Ergonomically designed office chair for comfort.",
+//     prize: 120,
+//     rating: 4.6,
+//     imageUrlList: [dummyImageUrl, dummyImageUrl],
+//   ),
+//   ProductModel(
+//     id: "adasoidai5",
+//     name: "Coffee Table",
+//     company: "Living Home",
+//     category: 'Table',
+//     description: "Stylish coffee table for your living room.",
+//     prize: 80,
+//     rating: 4.3,
+//     imageUrlList: [dummyImageUrl, dummyImageUrl],
+//   ),
+// ];
 
-ProductModel dummyProduct = ProductModel(
-  id: "adasoidai",
-  name: "Green Chair",
-  category: 'Chair',
-  company: "XYZ Company",
-  description: "product desc",
-  prize: 100,
-  rating: 4.5,
-  imageUrlList: [dummyImageUrl, dummyImageUrl],
-);
+// ProductModel dummyProduct = ProductModel(
+//   id: "adasoidai",
+//   name: "Green Chair",
+//   category: 'Chair',
+//   company: "XYZ Company",
+//   description: "product desc",
+//   prize: 100,
+//   rating: 4.5,
+//   imageUrlList: [dummyImageUrl, dummyImageUrl],
+// );
 
-ItemModel dummyCartItem = ItemModel(
-  productId: "adasoidai",
-  productName: "Green Chair",
-  productCompany: "XYZ Company",
-  productPrize: 100,
-  productImageUrl: '',
-  quantity: 5,
-);
+// ItemModel dummyCartItem = ItemModel(
+//   productId: "adasoidai",
+//   productName: "Green Chair",
+//   productCompany: "XYZ Company",
+//   productPrize: 100,
+//   productImageUrl: '',
+//   quantity: 5,
+// );
 
-List<ItemModel> dummyCartItems = [dummyCartItem, dummyCartItem, dummyCartItem];
+// List<ItemModel> dummyCartItems = [dummyCartItem, dummyCartItem, dummyCartItem];
 
 // final List<OrderModel> dummyOrders = [
 //   OrderModel(

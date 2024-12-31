@@ -73,7 +73,8 @@ class LocalDatabaseHelper {
         description TEXT NOT NULL,
         prize REAL NOT NULL,
         rating REAL NOT NULL,
-        imageUrlList TEXT NOT NULL
+        imageUrlList TEXT NOT NULL,
+        glbModelUrl TEXT NOT NULL
       )
     ''');
 

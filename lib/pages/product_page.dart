@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating/flutter_rating.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:furnify/constants/color_constants.dart';
 import 'package:furnify/constants/textstyle_constants.dart';
 import 'package:furnify/models/cart_item_model.dart';
@@ -9,7 +10,9 @@ import 'package:furnify/riverpod/cart_notifier.dart';
 import 'package:furnify/widgets/custom_button.dart';
 import 'package:furnify/widgets/favourite_button.dart';
 import 'package:furnify/widgets/quantity_selector.dart';
+import 'package:furnify/widgets/share_button.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProductPage extends ConsumerStatefulWidget {
   final ProductModel product;
@@ -114,7 +117,7 @@ class _ProductPageState extends ConsumerState<ProductPage> {
                         style: TextStyleConstants.appBar,
                       ),
                       Text(
-                        widget.product.prize.toString(),
+                        "₹${widget.product.prize.toInt()}",
                         style: TextStyleConstants.appBar,
                       ),
                     ],
@@ -148,7 +151,7 @@ class _ProductPageState extends ConsumerState<ProductPage> {
                         style: TextStyleConstants.smallText,
                       ),
                       Text(
-                        """Lorem ipsum dolor sit amet consectetur. Eget varius tempor purus imperdiet gravida facilisi at amet fringilla. Nisl auctor morbi posuere aliquam nisl.""",
+                        widget.product.description,
                         style: TextStyleConstants.subTitle,
                       ),
                     ],
@@ -163,22 +166,29 @@ class _ProductPageState extends ConsumerState<ProductPage> {
   }
 }
 
-class ProductImageSlideShow extends StatelessWidget {
+class ProductImageSlideShow extends StatefulWidget {
   final ProductModel product;
+  final double maxWidth;
   const ProductImageSlideShow({
     super.key,
     required this.maxWidth,
     required this.product,
   });
 
-  final double maxWidth;
+  @override
+  State<ProductImageSlideShow> createState() => _ProductImageSlideShowState();
+}
+
+class _ProductImageSlideShowState extends State<ProductImageSlideShow> {
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: maxWidth,
-      padding: const EdgeInsets.only(left: 20, right: 20, top: 50, bottom: 10),
+      height: widget.maxWidth,
+      padding: const EdgeInsets.only(left: 20, right: 20, top: 40, bottom: 10),
       color: ColorConstants.primaryColor,
       child: Column(
         children: [
@@ -190,29 +200,69 @@ class ProductImageSlideShow extends StatelessWidget {
                 size: 30,
                 weight: 600,
               ),
-              FavouriteButton(product: product),
+              const Spacer(),
+              ShareButton(
+                shareText:
+                    "Check out this product!\n\nName: ${widget.product.name}\nCompany: ${widget.product.company}\nPrice: ${widget.product.prize}\n\n${widget.product.imageUrlList[0]}",
+                imageUrl: widget.product.imageUrlList[0],
+              ),
+              const SizedBox(width: 15),
+              FavouriteButton(product: widget.product),
             ],
           ),
-          const Spacer(),
-          const Row(
+          const SizedBox(height: 10),
+          Expanded(
+            child: PageView.builder(
+              controller: _pageController,
+              onPageChanged: (index) {
+                setState(() {
+                  _currentPage = index;
+                });
+              },
+              itemCount: widget.product.imageUrlList.length,
+              itemBuilder: (context, index) {
+                return SvgPicture.network(
+                  widget.product.imageUrlList[index],
+                  fit: BoxFit.contain,
+                  placeholderBuilder: (context) =>
+                      const Center(child: CircularProgressIndicator()),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              SizedBox(
-                width: 30,
-                height: 30,
+              const SizedBox(width: 30, height: 30),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  widget.product.imageUrlList.length,
+                  (index) => AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    width: _currentPage == index ? 12 : 8,
+                    height: _currentPage == index ? 12 : 8,
+                    decoration: BoxDecoration(
+                      color:
+                          _currentPage == index ? Colors.black : Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
               ),
-              Icon(
-                Symbols.page_control_rounded,
-                size: 40,
-                weight: 600,
-              ),
-              Icon(
-                Symbols.view_in_ar,
-                size: 30,
-                weight: 600,
+              GestureDetector(
+                onTap: () => launchUrl(Uri.parse(widget.product.glbModelUrl)),
+                child: const Icon(
+                  Symbols.view_in_ar,
+                  size: 30,
+                  weight: 600,
+                ),
               ),
             ],
-          )
+          ),
+          const SizedBox(height: 5),
         ],
       ),
     );

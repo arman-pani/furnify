@@ -1,16 +1,46 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
-import 'package:furnify/constants/color_constants.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:furnify/app_router.dart';
 import 'package:furnify/constants/textstyle_constants.dart';
-import 'package:furnify/constants/theme_constants.dart';
+import 'package:furnify/models/user_model.dart';
+import 'package:furnify/services/common_methods.dart';
 import 'package:furnify/widgets/custom_appbar.dart';
+import 'package:furnify/widgets/settings_section.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  UserModel userInfo = UserModel(
+    firstName: '',
+    lastName: '',
+    phoneNumber: '',
+    profileImage: Uint8List(0),
+    id: '',
+    createdAt: DateTime.now(),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    getUserFromPrefs().then((value) {
+      setState(() {
+        userInfo = value;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: customAppBar(
         title: 'Profile',
         context: context,
@@ -22,9 +52,17 @@ class ProfilePage extends StatelessWidget {
           children: [
             Row(
               children: [
-                CircleAvatar(
-                  radius: 45,
-                  backgroundColor: ColorConstants.primaryColor,
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    color: Colors.black,
+                  ),
+                  width: 75,
+                  height: 75,
+                  child: SvgPicture.memory(
+                    userInfo.profileImage,
+                    fit: BoxFit.cover,
+                  ),
                 ),
                 const SizedBox(width: 15),
                 Column(
@@ -32,11 +70,11 @@ class ProfilePage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text(
-                      'Arman Pani',
+                      "${userInfo.firstName} ${userInfo.lastName}",
                       style: TextStyleConstants.titleMedium,
                     ),
                     Text(
-                      "+91 70080 17866",
+                      userInfo.phoneNumber,
                       style: TextStyleConstants.orderDeliveryDate,
                     )
                   ],
@@ -53,50 +91,46 @@ class ProfilePage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 30),
-            settingsSection(
-              title: 'Manage',
-              settingsRows: [
-                settingsRow(
-                  label: 'Your Addresses',
-                  icon: Symbols.file_map_stack_rounded,
-                  onTap: () {},
-                ),
-                settingsRow(
-                  label: 'Order Transactions',
-                  icon: Symbols.receipt_long_rounded,
-                  onTap: () {},
-                ),
-              ],
-            ),
+            SettingsSection(title: 'Manage', settingsRows: [
+              SettingsRow(
+                label: 'Your Addresses',
+                icon: Symbols.file_map_stack_rounded,
+                onTap: () =>
+                    Navigator.of(context).push(AppRouter.shippingAddressPage()),
+              ),
+              SettingsRow(
+                label: 'Order Transactions',
+                icon: Symbols.receipt_long_rounded,
+                onTap: () {},
+              ),
+            ]),
             const SizedBox(height: 30),
-            settingsSection(
-              title: 'Support',
-              settingsRows: [
-                settingsRow(
-                  label: 'Help Center',
-                  icon: Symbols.help_center_rounded,
-                  onTap: () {},
-                ),
-                settingsRow(
-                  label: 'Share Feedback',
-                  icon: Symbols.forum_rounded,
-                  onTap: () {},
-                ),
-              ],
-            ),
+            SettingsSection(title: 'Support', settingsRows: [
+              SettingsRow(
+                label: 'Help Center',
+                icon: Symbols.help_center_rounded,
+                onTap: () {},
+              ),
+              SettingsRow(
+                label: 'Share Feedback',
+                icon: Symbols.forum_rounded,
+                onTap: () {},
+              ),
+            ]),
             const SizedBox(height: 30),
-            settingsSection(
+            SettingsSection(
               title: 'More',
               settingsRows: [
-                settingsRow(
+                SettingsRow(
                   label: 'About Us',
                   icon: Symbols.group_work_rounded,
                   onTap: () {},
                 ),
-                settingsRow(
-                  label: 'Account Seetings',
+                SettingsRow(
+                  label: 'Account Settings',
                   icon: Symbols.settings_rounded,
-                  onTap: () {},
+                  onTap: () => Navigator.of(context)
+                      .push(AppRouter.accountSettingsPage()),
                 ),
               ],
             ),
@@ -132,66 +166,6 @@ class ProfilePage extends StatelessWidget {
             )
           ],
         ),
-      ),
-    );
-  }
-
-  Widget settingsSection({
-    required String title,
-    required List<Widget> settingsRows,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: TextStyleConstants.titleMedium,
-        ),
-        const SizedBox(height: 15),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(15),
-          decoration: ThemeConstants.greyBoxDecoration,
-          child: ListView.separated(
-            itemCount: settingsRows.length,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            scrollDirection: Axis.vertical,
-            itemBuilder: (context, index) => settingsRows[index],
-            separatorBuilder: (context, index) => const SizedBox(height: 15),
-          ),
-        )
-      ],
-    );
-  }
-
-  Widget settingsRow({
-    required String label,
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            weight: 600,
-            size: 30,
-          ),
-          const SizedBox(width: 10),
-          Text(
-            label,
-            style: TextStyleConstants.settingsLabel,
-          ),
-          const Spacer(),
-          const Icon(
-            Symbols.arrow_forward_ios_rounded,
-            weight: 600,
-            size: 25,
-          ),
-        ],
       ),
     );
   }

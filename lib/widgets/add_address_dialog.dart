@@ -5,6 +5,7 @@ import 'package:furnify/models/address_model.dart';
 import 'package:furnify/riverpod/address_notifier.dart';
 import 'package:furnify/widgets/custom_textfield.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:uuid/uuid.dart';
 
 void showAddAddressBottomSheet({
   required BuildContext context,
@@ -84,11 +85,14 @@ void showAddAddressBottomSheet({
               CustomTextField(
                 controller: address1Controller,
                 hintText: 'Address',
+                maxInputLimit: 40,
               ),
               const SizedBox(height: 10),
               CustomTextField(
                 controller: pincodeController,
                 hintText: 'Pincode',
+                maxInputLimit: 6,
+                onlyDigits: true,
               ),
               const SizedBox(height: 10),
               CustomTextField(
@@ -124,9 +128,13 @@ void showAddAddressBottomSheet({
                       }
 
                       final AddressModel newAddress = AddressModel(
+                        id: oldAddress != null
+                            ? oldAddress.id
+                            : const Uuid().v4(),
                         tag: tagController.text.trim(),
                         address1: address1Controller.text.trim(),
-                        isDefault: false,
+                        isDefault:
+                            oldAddress != null ? oldAddress.isDefault : false,
                         pincode:
                             int.tryParse(pincodeController.text.trim()) ?? 0,
                         country: countryController.text.trim(),
@@ -157,7 +165,7 @@ void showAddAddressBottomSheet({
                       );
                     },
                     child: Text(
-                      'Add',
+                      oldAddress != null ? 'Update' : 'Add',
                       style: TextStyleConstants.smallText,
                     ),
                   ),

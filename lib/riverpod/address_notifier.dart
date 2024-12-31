@@ -23,18 +23,13 @@ class AddressNotifier extends StateNotifier<List<AddressModel>> {
     await db.updateAddressInLocalDB(address: newAddress);
 
     state = state.map((address) {
-      if (address.id == newAddress.id) {
-        return newAddress;
-      }
-      return address;
+      return address.id == newAddress.id ? newAddress : address;
     }).toList();
   }
 
-  AddressModel? getDefaultAddress() {
-    return state.firstWhere(
-      (address) => address.isDefault,
-      orElse: () => null,
-    );
+  Future<AddressModel?> getDefaultAddress() async {
+    final defaultAddress = await db.getDefaultAddress();
+    return defaultAddress;
   }
 
   Future<void> setDefaultAddress(String addressId) async {
@@ -47,12 +42,3 @@ final addressProvider =
     StateNotifierProvider<AddressNotifier, List<AddressModel>>(
   (ref) => AddressNotifier(LocalDatabaseHelper()),
 );
-
-final defaultAddressProvider = Provider<AddressModel?>((ref) {
-  final addressList = ref.watch(addressProvider);
-  return addressList.firstWhere(
-    (address) =>
-        address.isDefault, // Assume `isDefault` indicates the default address
-    orElse: () => null,
-  );
-});

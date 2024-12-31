@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:furnify/app_router.dart';
 import 'package:furnify/constants/color_constants.dart';
-import 'package:furnify/constants/dummy_data.dart';
 import 'package:furnify/constants/textstyle_constants.dart';
 import 'package:furnify/models/product_model.dart';
+import 'package:furnify/riverpod/riverpod_provider.dart';
 import 'package:furnify/widgets/custom_appbar.dart';
 import 'package:furnify/widgets/custom_search_bar.dart';
+import 'package:furnify/widgets/location_widget.dart';
 import 'package:furnify/widgets/product_explore_card.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
-class ExplorePage extends StatefulWidget {
+class ExplorePage extends ConsumerStatefulWidget {
   const ExplorePage({super.key});
 
   @override
-  State<ExplorePage> createState() => _ExplorePageState();
+  ConsumerState<ExplorePage> createState() => _ExplorePageState();
 }
 
-class _ExplorePageState extends State<ExplorePage>
+class _ExplorePageState extends ConsumerState<ExplorePage>
     with AutomaticKeepAliveClientMixin<ExplorePage> {
   @override
   bool get wantKeepAlive => true;
@@ -24,25 +26,12 @@ class _ExplorePageState extends State<ExplorePage>
   Widget build(BuildContext context) {
     super.build(context);
 
+    final trendingProducts = ref.watch(getTrendingProductsProvider);
+
     return Scaffold(
-      appBar: homeAppBar(
-        context: context,
-        leading: Row(
-          children: [
-            const SizedBox(width: 15),
-            const Icon(
-              Symbols.distance_rounded,
-              size: 25,
-              weight: 600,
-            ),
-            const SizedBox(width: 5),
-            Text(
-              "Jharapada, Bhubaneswar",
-              style: TextStyleConstants.location,
-            ),
-          ],
-        ),
-      ),
+      backgroundColor: Colors.white,
+      appBar:
+          homeAppBar(context: context, leading: const CurrentLocationWidget()),
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(right: 15, left: 15, bottom: 30),
         child: Column(
@@ -65,7 +54,7 @@ class _ExplorePageState extends State<ExplorePage>
                     scrollDirection: Axis.horizontal,
                     itemBuilder: (context, index) {
                       return categoryCard(
-                        label: "Chairs",
+                        label: "Chair",
                         icon: Symbols.chair_rounded,
                       );
                     },
@@ -85,20 +74,26 @@ class _ExplorePageState extends State<ExplorePage>
                   style: TextStyleConstants.titleMedium,
                 ),
                 const SizedBox(height: 10),
-                ListView.separated(
-                  shrinkWrap: true,
-                  itemCount: dummyTrendingProducts.length,
-                  physics: const NeverScrollableScrollPhysics(),
-                  clipBehavior: Clip.none,
-                  scrollDirection: Axis.vertical,
-                  itemBuilder: (context, index) {
-                    final ProductModel product = dummyTrendingProducts[index];
-                    return ProductExploreCard(product: product);
-                  },
-                  separatorBuilder: (context, index) {
-                    return const SizedBox(height: 15);
-                  },
-                ),
+                trendingProducts.when(
+                  data: (trendingProducts) => ListView.separated(
+                    shrinkWrap: true,
+                    itemCount: trendingProducts.length,
+                    physics: const NeverScrollableScrollPhysics(),
+                    clipBehavior: Clip.none,
+                    scrollDirection: Axis.vertical,
+                    itemBuilder: (context, index) {
+                      final ProductModel product = trendingProducts[index];
+                      return ProductExploreCard(product: product);
+                    },
+                    separatorBuilder: (context, index) {
+                      return const SizedBox(height: 15);
+                    },
+                  ),
+                  error: (_, __) =>
+                      const Center(child: Text('An error occurred')),
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                )
               ],
             ),
           ],
