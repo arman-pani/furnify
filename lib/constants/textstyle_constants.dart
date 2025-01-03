@@ -16,8 +16,8 @@ class TextStyleConstants {
   );
 
   static TextStyle buttonLabel = GoogleFonts.outfit(
-    fontSize: 20,
-    fontWeight: FontWeight.w500,
+    fontSize: 18,
+    fontWeight: FontWeight.bold,
     color: Colors.white,
   );
 
@@ -28,7 +28,7 @@ class TextStyleConstants {
     height: 0.99,
   );
   static TextStyle titleRegular = GoogleFonts.outfit(
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: FontWeight.bold,
     color: Colors.black,
     height: 0.99,

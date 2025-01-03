@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:furnify/app_router.dart';
 import 'package:furnify/constants/textstyle_constants.dart';
 import 'package:furnify/widgets/custom_appbar.dart';
 import 'package:furnify/widgets/custom_button.dart';
@@ -40,9 +39,7 @@ class EmailVerificationPage extends StatelessWidget {
             const SizedBox(height: 30),
             CustomButton(
               label: 'Send code',
-              onPressed: () {
-                Navigator.of(context).push(AppRouter.resetPasswordPage());
-              },
+              onPressed: () {},
               isBlack: true,
             )
           ],

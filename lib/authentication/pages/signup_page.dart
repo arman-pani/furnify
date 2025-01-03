@@ -23,13 +23,14 @@ class _SignupPageState extends State<SignupPage> {
   final TextEditingController pwdController = TextEditingController();
   final TextEditingController confirmPwdController = TextEditingController();
 
-  void signUpUserWithEmail() async {
+  void signUpUserWithEmail() {
     FirebaseAuthMethods(
       FirebaseAuth.instance,
       FirebaseFirestore.instance,
     ).signUpWithEmail(
       email: emailController.text.trim(),
       password: pwdController.text.trim(),
+      confirmPassword: confirmPwdController.text.trim(),
       context: context,
     );
   }

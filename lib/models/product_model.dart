@@ -53,9 +53,9 @@ class ProductModel {
     );
   }
 
-  static ProductModel fromJson(Map<String, dynamic> map) {
+  static ProductModel fromJson(Map<String, dynamic> map, String docId) {
     return ProductModel(
-      id: map['id'] as String? ?? '',
+      id: docId,
       name: map['name'] as String? ?? '',
       company: map['company'] as String? ?? '',
       category: map['category'] as String? ?? '',
@@ -67,5 +67,10 @@ class ProductModel {
           : [],
       glbModelUrl: map['glbModelUrl'] as String? ?? '',
     );
+  }
+
+  @override
+  String toString() {
+    return 'ProductModel(id: $id, name: $name, company: $company, category: $category, description: $description, prize: $prize, rating: $rating, imageUrlList: $imageUrlList, glbModelUrl: $glbModelUrl)';
   }
 }

@@ -3,13 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:furnify/app_router.dart';
 import 'package:furnify/constants/color_constants.dart';
 import 'package:furnify/constants/textstyle_constants.dart';
+import 'package:furnify/models/category_model.dart';
 import 'package:furnify/models/product_model.dart';
 import 'package:furnify/riverpod/riverpod_provider.dart';
 import 'package:furnify/widgets/custom_appbar.dart';
 import 'package:furnify/widgets/custom_search_bar.dart';
 import 'package:furnify/widgets/location_widget.dart';
 import 'package:furnify/widgets/product_explore_card.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 class ExplorePage extends ConsumerStatefulWidget {
   const ExplorePage({super.key});
@@ -49,13 +49,14 @@ class _ExplorePageState extends ConsumerState<ExplorePage>
                 SizedBox(
                   height: 120,
                   child: ListView.separated(
-                    itemCount: 5,
+                    itemCount: categories.length,
                     clipBehavior: Clip.none,
                     scrollDirection: Axis.horizontal,
                     itemBuilder: (context, index) {
+                      final category = categories[index];
                       return categoryCard(
-                        label: "Chair",
-                        icon: Symbols.chair_rounded,
+                        label: category.name,
+                        icon: category.icon,
                       );
                     },
                     separatorBuilder: (context, index) {
@@ -75,24 +76,38 @@ class _ExplorePageState extends ConsumerState<ExplorePage>
                 ),
                 const SizedBox(height: 10),
                 trendingProducts.when(
-                  data: (trendingProducts) => ListView.separated(
-                    shrinkWrap: true,
-                    itemCount: trendingProducts.length,
-                    physics: const NeverScrollableScrollPhysics(),
-                    clipBehavior: Clip.none,
-                    scrollDirection: Axis.vertical,
-                    itemBuilder: (context, index) {
-                      final ProductModel product = trendingProducts[index];
-                      return ProductExploreCard(product: product);
-                    },
-                    separatorBuilder: (context, index) {
-                      return const SizedBox(height: 15);
-                    },
-                  ),
+                  data: (trendingProducts) {
+                    debugPrint("length : ${trendingProducts.length}");
+                    if (trendingProducts.isEmpty) {
+                      return const Center(
+                          child: Text('No trending products available'));
+                    }
+                    return ListView.separated(
+                      shrinkWrap: true,
+                      itemCount: trendingProducts.length,
+                      physics: const NeverScrollableScrollPhysics(),
+                      clipBehavior: Clip.none,
+                      scrollDirection: Axis.vertical,
+                      itemBuilder: (context, index) {
+                        final ProductModel product = trendingProducts[index];
+                        return ProductExploreCard(product: product);
+                      },
+                      separatorBuilder: (context, index) {
+                        return const SizedBox(height: 15);
+                      },
+                    );
+                  },
                   error: (_, __) =>
                       const Center(child: Text('An error occurred')),
-                  loading: () =>
-                      const Center(child: CircularProgressIndicator()),
+                  loading: () => const Column(
+                    children: [
+                      SizedBox(height: 120),
+                      Center(
+                          child: CircularProgressIndicator(
+                        color: Colors.black,
+                      )),
+                    ],
+                  ),
                 )
               ],
             ),

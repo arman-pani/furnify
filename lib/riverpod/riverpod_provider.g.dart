@@ -7,7 +7,7 @@ part of 'riverpod_provider.dart';
 // **************************************************************************
 
 String _$getTrendingProductsHash() =>
-    r'c9e62807c2a71ad59bae5d1cd346f27e9f84c707';
+    r'8083e266969dc0aec36af1b4d1d1fd9a13b0c57f';
 
 /// See also [getTrendingProducts].
 @ProviderFor(getTrendingProducts)
@@ -27,7 +27,7 @@ final getTrendingProductsProvider =
 typedef GetTrendingProductsRef
     = AutoDisposeFutureProviderRef<List<ProductModel>>;
 String _$getCategoryProductsHash() =>
-    r'6b4de5e9576ebe4be0307ac0b03ddcfff4d7f83b';
+    r'304132aba44fee0eee424666b0aaef82d226ce2b';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -182,7 +182,7 @@ class _GetCategoryProductsProviderElement
   String get category => (origin as GetCategoryProductsProvider).category;
 }
 
-String _$orderNotifierHash() => r'f556ff527b67514163f96e41d5741a02eb529ae2';
+String _$orderNotifierHash() => r'cfb0616ee03bb1590a0076fdc2c88bd9440fb6ed';
 
 /// See also [OrderNotifier].
 @ProviderFor(OrderNotifier)

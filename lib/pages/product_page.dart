@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating/flutter_rating.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:furnify/constants/color_constants.dart';
 import 'package:furnify/constants/textstyle_constants.dart';
+import 'package:furnify/helper_methoda.dart';
 import 'package:furnify/models/cart_item_model.dart';
 import 'package:furnify/models/product_model.dart';
 import 'package:furnify/riverpod/cart_notifier.dart';
@@ -57,7 +57,8 @@ class _ProductPageState extends ConsumerState<ProductPage> {
   @override
   Widget build(BuildContext context) {
     final maxWidth = MediaQuery.of(context).size.width;
-    final customButtonWidth = (maxWidth - 60) / 2;
+    final customButtonWidth = (maxWidth - 40) / 2;
+    const buttonPadding = EdgeInsets.symmetric(horizontal: 15, vertical: 5);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -74,6 +75,7 @@ class _ProductPageState extends ConsumerState<ProductPage> {
         child: Row(
           children: [
             CustomButton(
+              padding: buttonPadding,
               isBlack: true,
               icon: Symbols.shopping_bag_speed_rounded,
               customWidth: customButtonWidth,
@@ -82,6 +84,7 @@ class _ProductPageState extends ConsumerState<ProductPage> {
             ),
             const Spacer(),
             CustomButton(
+              padding: buttonPadding,
               isBlack: false,
               icon: Symbols.shopping_cart_rounded,
               customWidth: customButtonWidth,
@@ -112,12 +115,16 @@ class _ProductPageState extends ConsumerState<ProductPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        widget.product.name,
-                        style: TextStyleConstants.appBar,
+                      Expanded(
+                        child: Text(
+                          widget.product.name,
+                          style: TextStyleConstants.titleMedium,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
+                      const SizedBox(width: 10),
                       Text(
-                        "₹${widget.product.prize.toInt()}",
+                        "\$${widget.product.prize.toInt()}",
                         style: TextStyleConstants.appBar,
                       ),
                     ],
@@ -151,8 +158,10 @@ class _ProductPageState extends ConsumerState<ProductPage> {
                         style: TextStyleConstants.smallText,
                       ),
                       Text(
+                        softWrap: true,
                         widget.product.description,
                         style: TextStyleConstants.subTitle,
+                        textAlign: TextAlign.justify,
                       ),
                     ],
                   )
@@ -169,6 +178,7 @@ class _ProductPageState extends ConsumerState<ProductPage> {
 class ProductImageSlideShow extends StatefulWidget {
   final ProductModel product;
   final double maxWidth;
+
   const ProductImageSlideShow({
     super.key,
     required this.maxWidth,
@@ -195,10 +205,13 @@ class _ProductImageSlideShowState extends State<ProductImageSlideShow> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Icon(
-                Symbols.arrow_back_rounded,
-                size: 30,
-                weight: 600,
+              GestureDetector(
+                onTap: () => Navigator.of(context).pop(),
+                child: const Icon(
+                  Symbols.arrow_back_rounded,
+                  size: 30,
+                  weight: 600,
+                ),
               ),
               const Spacer(),
               ShareButton(
@@ -212,23 +225,62 @@ class _ProductImageSlideShowState extends State<ProductImageSlideShow> {
           ),
           const SizedBox(height: 10),
           Expanded(
-            child: PageView.builder(
-              controller: _pageController,
-              onPageChanged: (index) {
-                setState(() {
-                  _currentPage = index;
-                });
-              },
-              itemCount: widget.product.imageUrlList.length,
-              itemBuilder: (context, index) {
-                return SvgPicture.network(
-                  widget.product.imageUrlList[index],
-                  fit: BoxFit.contain,
-                  placeholderBuilder: (context) =>
-                      const Center(child: CircularProgressIndicator()),
-                );
-              },
-            ),
+            child: widget.product.imageUrlList.isEmpty
+                ? const Icon(
+                    Icons.image,
+                    weight: 200,
+                    size: 90,
+                  )
+                : PageView.builder(
+                    controller: _pageController,
+                    onPageChanged: (index) {
+                      setState(() {
+                        _currentPage = index;
+                      });
+                    },
+                    itemCount: widget.product.imageUrlList.length,
+                    itemBuilder: (context, index) {
+                      final imageName = widget.product.imageUrlList[index];
+
+                      return FutureBuilder(
+                        future: getImageUrl(imageName),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(
+                                  color: Colors.black),
+                            );
+                          }
+
+                          if (snapshot.hasError ||
+                              !snapshot.hasData ||
+                              snapshot.data!.isEmpty) {
+                            return const Center(
+                              child:
+                                  Icon(Symbols.image_not_supported, size: 90),
+                            );
+                          }
+
+                          return Image.network(
+                            snapshot.data.toString(),
+                            fit: BoxFit.contain,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return const Center(
+                                child: CircularProgressIndicator(
+                                    color: Colors.black),
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Icon(Symbols.image_not_supported,
+                                  size: 90);
+                            },
+                          );
+                        },
+                      );
+                    },
+                  ),
           ),
           const SizedBox(height: 10),
           Row(

@@ -5,6 +5,7 @@ import 'package:furnify/models/order_model.dart';
 import 'package:furnify/models/product_model.dart';
 import 'package:furnify/models/user_model.dart';
 import 'package:furnify/services/firestore_methods.dart';
+import 'package:furnify/services/payment_methods.dart';
 import 'package:furnify/sqlflite/local_database_helper.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -19,7 +20,7 @@ Future<List<ProductModel>> getTrendingProducts(Ref ref) async {
     final productsSnapshot = await productsCollection.get();
 
     final products = productsSnapshot.docs
-        .map((doc) => ProductModel.fromJson(doc.data()))
+        .map((doc) => ProductModel.fromJson(doc.data(), doc.id))
         .toList();
 
     debugPrint("Products: $products");
@@ -40,7 +41,7 @@ Future<List<ProductModel>> getCategoryProducts(Ref ref, String category) async {
     final productsSnapshot =
         await productsCollection.where('category', isEqualTo: category).get();
     final catergoryProducts = productsSnapshot.docs
-        .map((doc) => ProductModel.fromJson(doc.data()))
+        .map((doc) => ProductModel.fromJson(doc.data(), doc.id))
         .toList();
 
     return catergoryProducts;
@@ -61,8 +62,17 @@ class OrderNotifier extends _$OrderNotifier {
     return orders;
   }
 
-  Future<void> addOrder(OrderModel order, UserModel user) async {
+  Future<void> addOrder(
+    OrderModel order,
+    UserModel user,
+    BuildContext context,
+  ) async {
     try {
+      int amount = (order.totalPrize * 100).toInt();
+      PaymentMethods(context).openCheckout(
+        amount: amount,
+        description: '',
+      );
       final docId = await FirestoreMethods.postOrderToFirestore(order, user);
 
       final newOrder = order.copyWith(id: docId);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:furnify/app_router.dart';
 import 'package:furnify/constants/textstyle_constants.dart';
 import 'package:furnify/widgets/custom_button.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -29,8 +30,9 @@ class OrderConfirmedPage extends StatelessWidget {
               CustomButton(
                 label: 'Done',
                 onPressed: () {
-                  Navigator.popUntil(
-                      context, ModalRoute.withName('/indexPage'));
+                  Navigator.of(context).popUntil((route) =>
+                      route.settings.name ==
+                      AppRouter.indexPage().settings.name);
                 },
                 isBlack: true,
               )

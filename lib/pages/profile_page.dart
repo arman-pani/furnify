@@ -81,7 +81,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 const Spacer(),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () => Navigator.of(context)
+                      .push(AppRouter.setupProfilePage(userInfo)),
                   child: const Icon(
                     Symbols.edit_rounded,
                     size: 30,

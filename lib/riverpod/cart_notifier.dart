@@ -38,6 +38,11 @@ class CartNotifier extends StateNotifier<List<ItemModel>> {
     state = await _databaseHelper.getCart();
   }
 
+  Future<void> clearCart() async {
+    await _databaseHelper.deleteAllCartItems();
+    state = [];
+  }
+
   Future<void> removeFromCart({required String productId}) async {
     await _databaseHelper.removeFromCart(productId: productId);
     state = await _databaseHelper.getCart();

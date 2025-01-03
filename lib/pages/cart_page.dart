@@ -4,6 +4,7 @@ import 'package:furnify/app_router.dart';
 import 'package:furnify/constants/textstyle_constants.dart';
 import 'package:furnify/models/cart_item_model.dart';
 import 'package:furnify/riverpod/cart_notifier.dart';
+import 'package:furnify/utils/show_snackbar.dart';
 import 'package:furnify/widgets/custom_appbar.dart';
 import 'package:furnify/widgets/custom_bottom_sheet.dart';
 import 'package:furnify/widgets/placeholder_widget.dart';
@@ -40,8 +41,10 @@ class _CartPageState extends ConsumerState<CartPage>
         totalCost: totalCost,
         buttonIcon: Symbols.shopping_bag_rounded,
         buttonLabel: 'Checkout',
-        buttonOnTap: () => Navigator.of(context)
-            .push(AppRouter.checkoutPage(cartItems: cartItems)),
+        buttonOnTap: () => cartItems.isNotEmpty
+            ? Navigator.of(context)
+                .push(AppRouter.checkoutPage(cartItems: cartItems))
+            : showSnackBar(context: context, text: "Your cart is empty!"),
       ),
       appBar: homeAppBar(
         context: context,

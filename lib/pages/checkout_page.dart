@@ -8,8 +8,10 @@ import 'package:furnify/models/billing_model.dart';
 import 'package:furnify/models/cart_item_model.dart';
 import 'package:furnify/models/order_model.dart';
 import 'package:furnify/riverpod/address_notifier.dart';
+import 'package:furnify/riverpod/cart_notifier.dart';
 import 'package:furnify/riverpod/riverpod_provider.dart';
 import 'package:furnify/services/common_methods.dart';
+import 'package:furnify/utils/show_snackbar.dart';
 import 'package:furnify/widgets/address_card.dart';
 import 'package:furnify/widgets/billing_summary.dart';
 import 'package:furnify/widgets/custom_appbar.dart';
@@ -56,27 +58,33 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
     }
 
     void onTapPaymentButton() async {
-      final ordersNotifier = ref.read(orderNotifierProvider.notifier);
-      final user = await getUserFromPrefs();
+      try {
+        final ordersNotifier = ref.read(orderNotifierProvider.notifier);
+        final cartNotifier = ref.read(cartProvider.notifier);
+        final user = await getUserFromPrefs();
 
-      final order = OrderModel(
-        id: '',
-        totalPrize: grandTotal,
-        billingDetails: dummyBilling,
-        itemList: widget.cartItems,
-        isDelivered: false,
-        deliveryDate: DateTime(2025, 1, 12),
-        orderDateTime: DateTime.now(),
-        shippingAddress: defaultAddress!,
-      );
+        final order = OrderModel(
+          id: '',
+          totalPrize: grandTotal,
+          billingDetails: dummyBilling,
+          itemList: widget.cartItems,
+          isDelivered: false,
+          deliveryDate: DateTime(2025, 1, 12),
+          orderDateTime: DateTime.now(),
+          shippingAddress: defaultAddress!,
+        );
 
-      final future = ordersNotifier.addOrder(order, user);
+        final future = ordersNotifier.addOrder(order, user, context);
 
-      setState(() {
-        _pendingAddOrder = future;
-      });
+        setState(() {
+          _pendingAddOrder = future;
+        });
 
-      Navigator.of(context).push(AppRouter.orderConfirmedPage());
+        cartNotifier.clearCart();
+      } catch (error) {
+        debugPrint(error.toString());
+        showSnackBar(context: context, text: error.toString());
+      }
     }
 
     return Scaffold(
@@ -92,90 +100,121 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
         title: "Checkout",
         context: context,
       ),
-      body: SingleChildScrollView(
-        padding:
-            const EdgeInsets.only(left: 15, right: 15, top: 15, bottom: 90),
-        child: Column(
-          children: [
-            Column(
+      body: FutureBuilder(
+        future: _pendingAddOrder,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+                child: CircularProgressIndicator(color: Colors.black));
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 50, color: Colors.red),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Failed to submit order. Please try again.',
+                    style: TextStyleConstants.titleRegular,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                  CustomButton(
+                    label: 'Retry',
+                    onPressed: onTapPaymentButton,
+                    isBlack: true,
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return SingleChildScrollView(
+            padding:
+                const EdgeInsets.only(left: 15, right: 15, top: 15, bottom: 90),
+            child: Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                Column(
                   children: [
-                    Text(
-                      "Shipping Address",
-                      style: TextStyleConstants.titleMedium,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Shipping Address",
+                          style: TextStyleConstants.titleMedium,
+                        ),
+                        GestureDetector(
+                          onTap: () => Navigator.of(context)
+                              .push(AppRouter.shippingAddressPage()),
+                          child: const Icon(
+                            Symbols.edit_rounded,
+                            size: 25,
+                            weight: 600,
+                          ),
+                        ),
+                      ],
                     ),
-                    GestureDetector(
-                      onTap: () => Navigator.of(context)
-                          .push(AppRouter.shippingAddressPage()),
-                      child: const Icon(
-                        Symbols.edit_rounded,
-                        size: 25,
-                        weight: 600,
-                      ),
-                    ),
+                    const SizedBox(height: 15),
+                    defaultAddress != null
+                        ? AddressCard(
+                            addressModel: defaultAddress,
+                            isEditable: false,
+                          )
+                        : CustomButton(
+                            label: 'Add shipping address',
+                            onPressed: () => Navigator.of(context)
+                                .push(AppRouter.shippingAddressPage()),
+                            isBlack: true,
+                          )
                   ],
                 ),
-                const SizedBox(height: 15),
-                defaultAddress != null
-                    ? AddressCard(
-                        addressModel: defaultAddress,
-                        isEditable: false,
-                      )
-                    : CustomButton(
-                        label: 'Add shipping address',
-                        onPressed: () => Navigator.of(context)
-                            .push(AppRouter.shippingAddressPage()),
-                        isBlack: true,
-                      )
-              ],
-            ),
-            const SizedBox(height: 30),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Order List",
-                  style: TextStyleConstants.titleMedium,
+                const SizedBox(height: 30),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Order List",
+                      style: TextStyleConstants.titleMedium,
+                    ),
+                    const SizedBox(height: 15),
+                    ListView.separated(
+                      itemCount: widget.cartItems.length,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      clipBehavior: Clip.none,
+                      scrollDirection: Axis.vertical,
+                      itemBuilder: (context, index) {
+                        final ItemModel cartItem = widget.cartItems[index];
+                        return ProductCartCard(
+                          item: cartItem,
+                          isEditable: false,
+                        );
+                      },
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 15),
+                    )
+                  ],
                 ),
-                const SizedBox(height: 15),
-                ListView.separated(
-                  itemCount: widget.cartItems.length,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  clipBehavior: Clip.none,
-                  scrollDirection: Axis.vertical,
-                  itemBuilder: (context, index) {
-                    final ItemModel cartItem = widget.cartItems[index];
-                    return ProductCartCard(
-                      item: cartItem,
-                      isEditable: false,
-                    );
-                  },
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(height: 15),
-                )
-              ],
-            ),
-            const SizedBox(height: 30),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Billing Summary",
-                  style: TextStyleConstants.titleMedium,
+                const SizedBox(height: 30),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Billing Summary",
+                      style: TextStyleConstants.titleMedium,
+                    ),
+                    const SizedBox(height: 15),
+                    BillingSummary(
+                      bill: dummyBilling,
+                      grandTotal: grandTotal,
+                    )
+                  ],
                 ),
-                const SizedBox(height: 15),
-                BillingSummary(
-                  bill: dummyBilling,
-                  grandTotal: grandTotal,
-                )
               ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

@@ -21,6 +21,7 @@ void showAddAddressBottomSheet({
     builder: (BuildContext context) {
       final TextEditingController tagController = TextEditingController();
       final TextEditingController address1Controller = TextEditingController();
+      final TextEditingController address2Controller = TextEditingController();
       final TextEditingController pincodeController = TextEditingController();
       final TextEditingController countryController = TextEditingController();
       final TextEditingController stateController = TextEditingController();
@@ -29,6 +30,7 @@ void showAddAddressBottomSheet({
       if (oldAddress != null) {
         tagController.text = oldAddress.tag;
         address1Controller.text = oldAddress.address1;
+        address2Controller.text = oldAddress.address2 ?? "";
         pincodeController.text = oldAddress.pincode.toString();
         countryController.text = oldAddress.country;
         stateController.text = oldAddress.state;
@@ -84,7 +86,13 @@ void showAddAddressBottomSheet({
               const SizedBox(height: 10),
               CustomTextField(
                 controller: address1Controller,
-                hintText: 'Address',
+                hintText: 'Address Line 1',
+                maxInputLimit: 40,
+              ),
+              const SizedBox(height: 10),
+              CustomTextField(
+                controller: address2Controller,
+                hintText: 'Address Line 2',
                 maxInputLimit: 40,
               ),
               const SizedBox(height: 10),
@@ -133,6 +141,7 @@ void showAddAddressBottomSheet({
                             : const Uuid().v4(),
                         tag: tagController.text.trim(),
                         address1: address1Controller.text.trim(),
+                        address2: address2Controller.text.trim(),
                         isDefault:
                             oldAddress != null ? oldAddress.isDefault : false,
                         pincode:

@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:furnify/app_router.dart';
 import 'package:furnify/constants/textstyle_constants.dart';
+import 'package:furnify/services/firebase_auth_methods.dart';
 import 'package:furnify/widgets/custom_appbar.dart';
 import 'package:furnify/widgets/custom_button.dart';
 import 'package:furnify/widgets/custom_textfield.dart';
@@ -12,6 +14,17 @@ class ForgetPasswordPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TextEditingController emailController = TextEditingController();
+
+    void sendCodeToEmail() {
+      FirebaseAuthMethods(
+        FirebaseAuth.instance,
+        FirebaseFirestore.instance,
+      ).sendPasswordResetLink(
+        context,
+        emailController.text.trim(),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: customAppBar(title: 'Forget Password', context: context),
@@ -39,9 +52,7 @@ class ForgetPasswordPage extends StatelessWidget {
             const SizedBox(height: 30),
             CustomButton(
               label: 'Send code',
-              onPressed: () {
-                Navigator.of(context).push(AppRouter.emailVerificationPage());
-              },
+              onPressed: sendCodeToEmail,
               isBlack: true,
             )
           ],

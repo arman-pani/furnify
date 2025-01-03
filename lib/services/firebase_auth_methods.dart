@@ -86,15 +86,23 @@ class FirebaseAuthMethods {
   Future<void> signUpWithEmail({
     required String email,
     required String password,
+    required String confirmPassword,
     required BuildContext context,
   }) async {
     try {
-      await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      if (password == confirmPassword) {
+        await _auth.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+      } else {
+        return showSnackBar(
+          context: context,
+          text: "Password and confirm password do not match.",
+        );
+      }
 
-      Navigator.of(context).push(AppRouter.setupProfilePage());
+      Navigator.of(context).push(AppRouter.setupProfilePage(null));
     } on FirebaseAuthException catch (error) {
       String message;
       if (error.code == 'email-already-in-use') {
@@ -200,7 +208,7 @@ class FirebaseAuthMethods {
         if (userCredential.user != null) {
           if (userCredential.additionalUserInfo!.isNewUser) {
             debugPrint("New user detected. Navigating to setup profile page.");
-            Navigator.of(context).push(AppRouter.setupProfilePage());
+            Navigator.of(context).push(AppRouter.setupProfilePage(null));
           } else {
             debugPrint("Existing user detected. Navigating to index page.");
             Navigator.of(context).push(AppRouter.indexPage());
@@ -209,6 +217,24 @@ class FirebaseAuthMethods {
       }
     } on FirebaseAuthException catch (error) {
       showSnackBar(context: context, text: error.message!);
+    }
+  }
+
+  Future<void> sendPasswordResetLink(BuildContext context, String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+
+      Navigator.of(context).pop();
+    } on FirebaseAuthException catch (error) {
+      String message;
+      if (error.code == 'user-not-found') {
+        message = 'There is no user with this email address.';
+      } else if (error.code == 'invalid-email') {
+        message = 'The email address is invalid. Please enter a valid email.';
+      } else {
+        message = error.message!;
+      }
+      showSnackBar(context: context, text: message);
     }
   }
 }

@@ -175,6 +175,12 @@ class LocalDatabaseHelper {
     );
   }
 
+  Future<void> deleteAllCartItems() async {
+    final db = await database;
+
+    await db.delete('cart');
+  }
+
   Future<void> updateQuantity({
     required String productId,
     required int newQuantity,
